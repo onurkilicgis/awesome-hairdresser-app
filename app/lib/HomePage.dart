@@ -30,50 +30,89 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Row(
+              children: [
+                Expanded(
+                    child: ExpansionTile(
+                  title: Text("Sıralama"),
+                  children: [
+                    ListTile(
+                      title: Text("Fiyata Göre"),
+                      onTap: () {},
+                    ),
+                    ListTile(
+                      title: Text("Puana Göre"),
+                      onTap: () {},
+                    ),
+                    ListTile(
+                      title: Text("Yakınlığa Göre"),
+                      onTap: () {},
+                    ),
+                  ],
+                )),
+                Expanded(child: ExpansionTile(title: Text("İl Listesi")))
+              ],
+            ),
             FutureBuilder<List<Features>?>(
                 future: api.jsonParse(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData != null) {
-                    return ListView.builder(
-                        physics: NeverScrollableScrollPhysics(),
-                        scrollDirection: Axis.vertical,
-                        shrinkWrap: true,
-                        itemCount: api.allHairDressers?.length,
-                        itemBuilder: (contex, index) {
-                          return GFCard(
-                            boxFit: BoxFit.cover,
-                            showImage: true,
-                            image: Image.asset('assets/barber.jpg'),
-                            title: GFListTile(
-                              title: Text(''),
-                            ),
-                            content: SizedBox(
-                              height: 45,
-                              child: Text(''),
-                            ),
-                            buttonBar: GFButtonBar(
-                              children: <Widget>[
-                                GFButton(
-                                  onPressed: () {},
-                                  text: 'Satın Al',
-                                  size: 67,
-                                  color: Colors.green,
-                                  buttonBoxShadow: true,
-                                  splashColor: Colors.amber,
+                    List<dynamic> array = api.allHairDressers as List<Features>;
+                    return Expanded(
+                      child: ListView.builder(
+                          physics: AlwaysScrollableScrollPhysics(),
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          itemCount: api.allHairDressers?.length,
+                          itemBuilder: (contex, index) {
+                            return GFCard(
+                              boxFit: BoxFit.cover,
+                              showImage: true,
+                              image: Image.asset('assets/barber.jpg'),
+                              title: GFListTile(
+                                titleText:
+                                    array[index].properties.adi.toString(),
+                                subTitleText:
+                                    "Fiyat:${array[index].properties.fiyat.toString() + "TL"}",
+                              ),
+                              content: SizedBox(
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      "Puan: ${array[index].properties.puan.toString()}",
+                                    ),
+                                    SizedBox(
+                                      height: 5,
+                                    ),
+                                    Text(
+                                        "Adres:${array[index].properties.il.toString() + "/"}${array[index].properties.ilce.toString()}")
+                                  ],
                                 ),
-                                SizedBox(width: 300),
-                                GFButton(
-                                  onPressed: () {},
-                                  text: 'Paylaş',
-                                  size: 67,
-                                  color: Colors.green,
-                                  buttonBoxShadow: true,
-                                  splashColor: Colors.amber,
-                                ),
-                              ],
-                            ),
-                          );
-                        });
+                              ),
+                              buttonBar: GFButtonBar(
+                                children: <Widget>[
+                                  GFButton(
+                                    onPressed: () {},
+                                    text: 'Haritada Göster',
+                                    size: 50,
+                                    color: Colors.teal,
+                                    buttonBoxShadow: true,
+                                    splashColor: Colors.amber,
+                                  ),
+                                  SizedBox(width: 100),
+                                  GFButton(
+                                    onPressed: () {},
+                                    text: 'Navigasyon Aç',
+                                    size: 50,
+                                    color: Colors.teal,
+                                    buttonBoxShadow: true,
+                                    splashColor: Colors.amber,
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                    );
                   } else if (snapshot.hasError) {
                     return Container(child: Text("veri bulunamadı"));
                   } else {
