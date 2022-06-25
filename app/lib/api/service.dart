@@ -16,6 +16,7 @@ class Api {
 
       HairDressers kuaforData = HairDressers.fromJson(data);
       allHairDressers = kuaforData.data?.features;
+
       return allHairDressers;
     } catch (e) {
       print('Bir hata oluştu:${e.toString()}');
