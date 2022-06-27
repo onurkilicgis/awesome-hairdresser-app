@@ -5,6 +5,8 @@ import 'package:http/http.dart' as http;
 
 class Api {
   List<Features>? allHairDressers = [];
+  List<String?> dropCity = [];
+  late int i;
 
   Future<List<Features>?> jsonParse() async {
     try {
@@ -21,5 +23,18 @@ class Api {
     } catch (e) {
       print('Bir hata oluştu:${e.toString()}');
     }
+  }
+
+  getCity() {
+    List<String?> dropCityEmpty = [];
+    for (i = 0; i < allHairDressers!.length; i++) {
+      String? city = allHairDressers![i].properties!.il;
+      if (dropCityEmpty.indexOf(city) == -1) {
+        dropCityEmpty.add(city);
+      }
+    }
+    dropCityEmpty.sort();
+    dropCity = dropCityEmpty;
+    return dropCity;
   }
 }
