@@ -19,16 +19,26 @@ class Api {
       HairDressers kuaforData = HairDressers.fromJson(data);
       allHairDressers = kuaforData.data?.features;
 
+      List<String?> dropCityEmpty = [];
+      for (i = 0; i < allHairDressers!.length; i++) {
+        String? city = allHairDressers![i].properties!.il;
+        if (dropCityEmpty.indexOf(city) == -1) {
+          dropCityEmpty.add(city);
+        }
+      }
+      // dropCityEmpty.sort();
+      dropCity = dropCityEmpty;
+
       return allHairDressers;
     } catch (e) {
       print('Bir hata oluştu:${e.toString()}');
     }
   }
 
-  getCity() {
+  /* Future<List<String?>> getCity() async {
     List<String?> dropCityEmpty = [];
     for (i = 0; i < allHairDressers!.length; i++) {
-      String? city = allHairDressers![i].properties!.il;
+      String? city = await allHairDressers![i].properties!.il;
       if (dropCityEmpty.indexOf(city) == -1) {
         dropCityEmpty.add(city);
       }
@@ -36,5 +46,5 @@ class Api {
     dropCityEmpty.sort();
     dropCity = dropCityEmpty;
     return dropCity;
-  }
+  }*/
 }
