@@ -1,4 +1,4 @@
-import 'package:app/view_models/drop_model.dart';
+import 'package:app/view_models/city_name.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/components/button/gf_button.dart';
@@ -19,54 +19,61 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   Api api = new Api();
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      api.jsonParse();
+  bool functionComplete = false;
+
+  void runParse() async {
+    await api.jsonParse();
+    setState(() {
+      functionComplete = true;
     });
   }
 
   @override
+  void initState() {
+    runParse();
+
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(''),
-      ),
-      body: Center(
-        child: ChangeNotifierProvider(
-          create: (BuildContext context) => CityName(api),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                      child: ExpansionTile(
-                    title: Text("Sıralama"),
-                    children: [
-                      ListTile(
-                        title: Text("Fiyata Göre"),
-                        onTap: () {},
-                      ),
-                      ListTile(
-                        title: Text("Puana Göre"),
-                        onTap: () {},
-                      ),
-                      ListTile(
-                        title: Text("Yakınlığa Göre"),
-                        onTap: () {},
-                      ),
-                    ],
-                  )),
-                  FutureBuilder(
-                      future: api.getCity(),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<dynamic> snapshot) {
-                        return Consumer<CityName>(
+    return functionComplete == false
+        ? SizedBox()
+        : Scaffold(
+            appBar: AppBar(
+              title: Text(''),
+            ),
+            body: Center(
+              child: ChangeNotifierProvider(
+                create: (context) => CityName(api),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                            child: ExpansionTile(
+                          title: Text("Sıralama"),
+                          children: [
+                            ListTile(
+                              title: Text("Fiyata Göre"),
+                              onTap: () {},
+                            ),
+                            ListTile(
+                              title: Text("Puana Göre"),
+                              onTap: () {},
+                            ),
+                            ListTile(
+                              title: Text("Yakınlığa Göre"),
+                              onTap: () {},
+                            ),
+                          ],
+                        )),
+                        Consumer<CityName>(
                           builder: (context, cityName, child) {
                             return DropdownButton<String>(
-                              value: cityName.selectedCity,
+                              value: cityName.getFirstCityName(),
+                              hint: Text("Lütfen Bir İl Seçiniz"),
                               icon: const Icon(Icons.arrow_drop_down),
                               elevation: 16,
                               style: const TextStyle(color: Colors.deepPurple),
@@ -74,8 +81,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                 height: 2,
                                 color: Colors.deepPurpleAccent,
                               ),
-                              items: api.dropCity.map<DropdownMenuItem<String>>(
-                                  (String? value) {
+                              items: api
+                                  .getCity()
+                                  .map<DropdownMenuItem<String>>(
+                                      (String? value) {
                                 return DropdownMenuItem<String>(
                                   value: value,
                                   child: Text("$value"),
@@ -86,94 +95,110 @@ class _MyHomePageState extends State<MyHomePage> {
                               },
                             );
                           },
+                        ),
+                      ],
+                    ),
+                    Consumer<CityName>(
+                        builder: (BuildContext context, cityName, child) {
+                      if (CityName.citySelectionStatus == true) {
+                        return DropdownButton<String>(
+                          value: cityName.getFirstTownName(),
+                          hint: Text("Bir ilçe seçiniz"),
+                          icon: const Icon(Icons.arrow_drop_down),
+                          elevation: 16,
+                          style: const TextStyle(color: Colors.deepPurple),
+                          underline: Container(
+                            height: 2,
+                            color: Colors.deepPurpleAccent,
+                          ),
+                          items: cityName
+                              .getSelectedCityTowns()
+                              .map<DropdownMenuItem<String>>((String? value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text("$value"),
+                            );
+                          }).toList(),
+                          onChanged: (String? newValue) {
+                            cityName.getTownDressers(newValue!);
+                          },
                         );
-                      })
-                ],
-              ),
-              Consumer<CityName>(builder: (context, cityName, child) {
-                return FutureBuilder<List<Features>?>(
-                    future: cityName.getFilteredCities(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData != null) {
-                        /*List<dynamic> array =
-                            api.allHairDressers as List<Features>;*/
-                        return Expanded(
-                          child: ListView.builder(
-                              physics: AlwaysScrollableScrollPhysics(),
-                              scrollDirection: Axis.vertical,
-                              shrinkWrap: true,
-                              itemCount: snapshot.data?.length,
-                              itemBuilder: (contex, index) {
-                                return GFCard(
-                                  boxFit: BoxFit.cover,
-                                  showImage: true,
-                                  image: Image.asset('assets/barber.jpg'),
-                                  title: GFListTile(
-                                    onTap: () {},
-                                    titleText: snapshot
-                                        .data![index].properties?.adi
-                                        .toString(),
-                                    subTitleText:
-                                        "Fiyat:${snapshot.data![index].properties?.fiyat.toString()}",
-                                  ),
-                                  content: SizedBox(
-                                    child: Column(
-                                      children: [
-                                        Text(
-                                          "Puan: ${snapshot.data![index].properties?.puan.toString()}",
-                                        ),
-                                        SizedBox(
-                                          height: 5,
-                                        ),
-                                        Text(
-                                            "Adres:${snapshot.data![index].properties?.il.toString()}${snapshot.data![index].properties?.ilce.toString()}")
-                                      ],
-                                    ),
-                                  ),
-                                  buttonBar: GFButtonBar(
-                                    children: <Widget>[
-                                      GFButton(
-                                        onPressed: () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      NewPage()));
-                                        },
-                                        text: 'Haritada Göster',
-                                        size: 50,
-                                        color: Colors.teal,
-                                        buttonBoxShadow: true,
-                                        splashColor: Colors.amber,
+                      } else {
+                        return SizedBox();
+                      }
+                    }),
+                    Consumer<CityName>(builder: (context, cityName, child) {
+                      return Expanded(
+                        child: ListView.builder(
+                            physics: AlwaysScrollableScrollPhysics(),
+                            scrollDirection: Axis.vertical,
+                            shrinkWrap: true,
+                            itemCount: cityName.getFilteredCount(),
+                            itemBuilder: (contex, index) {
+                              List<Features> filteredItems =
+                                  cityName.getFilteredCities();
+                              return GFCard(
+                                boxFit: BoxFit.cover,
+                                showImage: true,
+                                image: Image.asset('assets/barber.jpg'),
+                                title: GFListTile(
+                                  onTap: () {},
+                                  titleText: filteredItems[index]
+                                      .properties
+                                      ?.adi
+                                      .toString(),
+                                  subTitleText:
+                                      "Fiyat:${filteredItems[index].properties?.fiyat.toString()}",
+                                ),
+                                content: SizedBox(
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        "Puan: ${filteredItems[index].properties?.puan.toString()}",
                                       ),
-                                      SizedBox(width: 100),
-                                      GFButton(
-                                        onPressed: () {},
-                                        text: 'Navigasyon Aç',
-                                        size: 50,
-                                        color: Colors.teal,
-                                        buttonBoxShadow: true,
-                                        splashColor: Colors.amber,
+                                      SizedBox(
+                                        height: 5,
                                       ),
+                                      Text(
+                                          "İl : ${filteredItems[index].properties?.il.toString()} - İlce : ${filteredItems![index].properties?.ilce.toString()}")
                                     ],
                                   ),
-                                );
-                              }),
-                        );
-                      } else if (snapshot.hasError) {
-                        return Container(child: Text("veri bulunamadı"));
-                      } else {
-                        return Container(
-                            child: Center(
-                          child: CircularProgressIndicator(),
-                        ));
-                      }
-                    });
-              }),
-            ],
-          ),
-        ),
-      ),
-    );
+                                ),
+                                buttonBar: GFButtonBar(
+                                  children: <Widget>[
+                                    GFButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    NewPage()));
+                                      },
+                                      text: 'Haritada Göster',
+                                      size: 50,
+                                      color: Colors.teal,
+                                      buttonBoxShadow: true,
+                                      splashColor: Colors.amber,
+                                    ),
+                                    SizedBox(width: 100),
+                                    GFButton(
+                                      onPressed: () {},
+                                      text: 'Navigasyon Aç',
+                                      size: 50,
+                                      color: Colors.teal,
+                                      buttonBoxShadow: true,
+                                      splashColor: Colors.amber,
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }),
+                      );
+                    }),
+                  ],
+                ),
+              ),
+            ),
+          );
   }
 }

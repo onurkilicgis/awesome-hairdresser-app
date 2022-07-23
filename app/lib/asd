@@ -1,0 +1,49 @@
+[
+{il:'Ankara',ilce:'AAA'},
+{il:'Ankara',ilce:'BBB'},
+{il:'Ankara',ilce:'BBB'},
+{il:'Ankara',ilce:'CCC'},
+{il:'Ankara',ilce:'AAA'},
+{il:'Ankara',ilce:'AAA'},
+{il:'İstanbul',ilce:'AAA'},
+{il:'İstanbul',ilce:'EEE'},
+{il:'İstanbul',ilce:'EEE'},
+{il:'İstanbul',ilce:'EEE'},
+{il:'İstanbul',ilce:'FFF'},
+{il:'İstanbul',ilce:'FFF'},
+]
+
+iller = ['Ankara','İstanbul'];
+secilenİl = 'Ankara';
+secilenIlce = 'BBB';
+
+ilceler = ['AAA','BBB','CCC'];
+if(item.il==secilenİl){
+    if(ilceler.indexof(item.ilce)==-1){
+        ilceler.add(item.ilce)
+    }
+}
+
+return ilceler;
+
+ilçe seçildiğinde
+---------------
+calistir(String ilce)
+{
+
+Lİst<dynamic> dizi=[];
+for(...)
+{
+String ilce =liste[i].ilce;
+String il = liste[i].il;
+
+if(il==secilenil )
+&& ilce==secişenilce)
+{
+dizi.add(
+
+
+
+}
+}
+}

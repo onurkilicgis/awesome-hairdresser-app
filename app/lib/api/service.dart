@@ -7,6 +7,7 @@ class Api {
   List<Features>? allHairDressersFiltered = [];
   List<Features>? allHairDressers = [];
   List<String?> dropCity = [];
+  List<String?> dropTown = [];
   late int i;
 
   Future<List<Features>?> jsonParse() async {
@@ -27,10 +28,12 @@ class Api {
     }
   }
 
-  Future<List<String?>> getCity() async {
+  List<String?> getCity() {
     List<String?> dropCityEmpty = [];
+
     for (i = 0; i < allHairDressers!.length; i++) {
-      String? city = await allHairDressers![i].properties!.il;
+      String? city = allHairDressers![i].properties!.il;
+
       if (dropCityEmpty.indexOf(city) == -1) {
         dropCityEmpty.add(city);
       }
@@ -40,10 +43,11 @@ class Api {
     return dropCity;
   }
 
-  Future<List<Features>?> getCityDressers(String? city) async {
+  List<Features>? getCityDressers(String? city) {
     List<Features> filterCityEmpty = [];
+
     for (i = 0; i < allHairDressers!.length; i++) {
-      String? cityArray = await allHairDressers![i].properties!.il;
+      String? cityArray = allHairDressers![i].properties!.il;
       if (city == cityArray) {
         filterCityEmpty.add(allHairDressers![i]);
       }
@@ -53,18 +57,33 @@ class Api {
     return allHairDressersFiltered;
   }
 
-  /*void kiyasla(String data) {
-    if (data == "fiyat") {
-      Comparator<Features> siralama =
-          (x, y) => x.properties!.fiyat!.compareTo(y.properties!.fiyat!);
-      allHairDressers?.sort(siralama);
-
-      notifyListeners();
-    } else if (data == "Puan") {
-      Comparator<Features> siralama =
-          (y, x) => x.properties!.puan!.compareTo(y.properties!.puan!);
-      allHairDressers?.sort(siralama);
-      notifyListeners();
+  List<Features>? getTownDressers(String? town, String? city) {
+    List<Features> filterTownEmpty = [];
+    for (i = 0; i < allHairDressers!.length; i++) {
+      String? cityList = allHairDressers![i].properties!.il;
+      String? townList = allHairDressers![i].properties!.ilce;
+      if (city == cityList && town == townList) {
+        filterTownEmpty.add(allHairDressers![i]);
+      }
     }
-  }*/
+    allHairDressersFiltered = filterTownEmpty;
+
+    return allHairDressersFiltered;
+  }
+
+  List<String?> getTown(String cityname) {
+    List<String?> dropTownEmpty = [];
+
+    for (i = 0; i < allHairDressers!.length; i++) {
+      String? town = allHairDressers![i].properties!.ilce;
+      String? city = allHairDressers![i].properties!.il;
+
+      if (dropTownEmpty.indexOf(town) == -1 && city == cityname) {
+        dropTownEmpty.add(town);
+      }
+    }
+    dropTownEmpty.sort();
+    dropTown = dropTownEmpty;
+    return dropTown;
+  }
 }
